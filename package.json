@@ -1,0 +1,8 @@
+{
+  "name": "whitening-api",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "sharp": "^0.33.0"
+  }
+}
