@@ -1,7 +1,7 @@
 const sharp = require("sharp");
 
-module.exports = async function (req, res) {
-  const apikey = req.query.apikey;
+module.exports = async (req, res) => {
+  const { apikey } = req.query;
 
   if (apikey !== "akram123") {
     return res.status(403).json({ message: "Invalid API Key" });
@@ -11,27 +11,27 @@ module.exports = async function (req, res) {
     return res.status(405).json({ message: "Method Not Allowed" });
   }
 
-  let buffers = [];
+  try {
+    const chunks = [];
 
-  req.on("data", chunk => {
-    buffers.push(chunk);
-  });
-
-  req.on("end", async () => {
-    try {
-      const imageBuffer = Buffer.concat(buffers);
-
-      const output = await sharp(imageBuffer)
-        .modulate({
-          brightness: 1.3,
-          saturation: 1.1,
-        })
-        .toBuffer();
-
-      res.setHeader("Content-Type", "image/jpeg");
-      res.status(200).send(output);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
+    for await (const chunk of req) {
+      chunks.push(chunk);
     }
-  });
+
+    const buffer = Buffer.concat(chunks);
+
+    const output = await sharp(buffer)
+      .modulate({
+        brightness: 1.3,
+        saturation: 1.1,
+      })
+      .jpeg()
+      .toBuffer();
+
+    res.setHeader("Content-Type", "image/jpeg");
+    return res.status(200).send(output);
+
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
 };
