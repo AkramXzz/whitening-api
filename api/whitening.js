@@ -1,16 +1,10 @@
-import sharp from "sharp";
+const sharp = require("sharp");
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
-export default async function handler(req, res) {
+module.exports = async function (req, res) {
   const apikey = req.query.apikey;
 
   if (apikey !== "akram123") {
-    return res.status(403).json({ status: false, message: "Invalid API Key" });
+    return res.status(403).json({ message: "Invalid API Key" });
   }
 
   if (req.method !== "POST") {
@@ -30,7 +24,7 @@ export default async function handler(req, res) {
       const output = await sharp(imageBuffer)
         .modulate({
           brightness: 1.3,
-          saturation: 1.1
+          saturation: 1.1,
         })
         .toBuffer();
 
@@ -40,4 +34,4 @@ export default async function handler(req, res) {
       res.status(500).json({ error: err.message });
     }
   });
-          }
+};
